@@ -1,0 +1,18 @@
+# build artifacts
+/dc6
+/vpn4
+*.exe
+*.test
+
+# local secrets / runtime configs
+*.key
+*.conf
+!docs/**/*.conf
+.env
+/secrets/
+
+# editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

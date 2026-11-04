@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="430" viewBox="0 0 980 430" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="13">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5568"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2f855a"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="980" height="430" fill="#ffffff"/>
+
+  <text x="490" y="30" text-anchor="middle" font-size="17" font-weight="600" fill="#1a202c">
+    IPv6-only host: IPv4 services via provider NAT64
+  </text>
+  <text x="490" y="52" text-anchor="middle" font-size="12" fill="#718096">
+    REDIRECT → SO_ORIGINAL_DST → dial tcp6 [prefix::IPv4] — used by dc6 (MTProto) and vpn4 (AmneziaWG)
+  </text>
+
+  <!-- client -->
+  <rect x="20" y="90" width="150" height="80" rx="8" fill="#ebf8ff" stroke="#3182ce" stroke-width="1.5"/>
+  <text x="95" y="118" text-anchor="middle" font-weight="600" fill="#2c5282">Client / service</text>
+  <text x="95" y="138" text-anchor="middle" font-size="11" fill="#2c5282">wants IPv4</text>
+  <text x="95" y="154" text-anchor="middle" font-size="11" fill="#2c5282">(no IPv4 route here)</text>
+
+  <!-- redirect -->
+  <rect x="220" y="90" width="170" height="80" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.5"/>
+  <text x="305" y="114" text-anchor="middle" font-weight="600" fill="#7b341e">iptables -t nat</text>
+  <text x="305" y="132" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#7b341e">REDIRECT</text>
+  <text x="305" y="150" text-anchor="middle" font-size="11" fill="#7b341e">OUTPUT (dc6)</text>
+  <text x="305" y="164" text-anchor="middle" font-size="11" fill="#7b341e">PREROUTING (vpn4)</text>
+
+  <!-- bridge process -->
+  <rect x="440" y="80" width="180" height="100" rx="8" fill="#f0fff4" stroke="#38a169" stroke-width="1.5"/>
+  <text x="530" y="104" text-anchor="middle" font-weight="600" fill="#22543d">dc6 / vpn4 (Go)</text>
+  <text x="530" y="124" text-anchor="middle" font-size="11" fill="#22543d">SO_ORIGINAL_DST</text>
+  <text x="530" y="140" text-anchor="middle" font-size="11" fill="#22543d">→ [prefix::a.b.c.d]</text>
+  <text x="530" y="156" text-anchor="middle" font-size="11" fill="#22543d">tcp6 dial, byte relay</text>
+  <text x="530" y="172" text-anchor="middle" font-size="11" fill="#22543d">(vpn4 also: DNS UDP)</text>
+
+  <!-- nat64 -->
+  <rect x="670" y="90" width="140" height="80" rx="8" fill="#faf5ff" stroke="#805ad5" stroke-width="1.5"/>
+  <text x="740" y="118" text-anchor="middle" font-weight="600" fill="#44337a">Provider NAT64</text>
+  <text x="740" y="138" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#44337a">2a01:4f8:c2c:123f:64:5::/96</text>
+  <text x="740" y="156" text-anchor="middle" font-size="11" fill="#44337a">IPv6 ↔ IPv4</text>
+
+  <!-- internet -->
+  <rect x="850" y="90" width="110" height="80" rx="8" fill="#edf2f7" stroke="#4a5568" stroke-width="1.5"/>
+  <text x="905" y="124" text-anchor="middle" font-weight="600" fill="#2d3748">Internet</text>
+  <text x="905" y="144" text-anchor="middle" font-size="11" fill="#2d3748">IPv4 only</text>
+
+  <!-- arrows -->
+  <line x1="170" y1="130" x2="218" y2="130" stroke="#4a5568" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text x="194" y="122" text-anchor="middle" font-size="10" fill="#4a5568">IPv4</text>
+
+  <line x1="390" y1="130" x2="438" y2="130" stroke="#4a5568" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text x="414" y="122" text-anchor="middle" font-size="10" fill="#4a5568">accept</text>
+
+  <line x1="620" y1="130" x2="668" y2="130" stroke="#2f855a" stroke-width="1.6" marker-end="url(#arrowGreen)"/>
+  <text x="644" y="122" text-anchor="middle" font-size="10" fill="#2f855a">IPv6</text>
+
+  <line x1="810" y1="130" x2="848" y2="130" stroke="#4a5568" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text x="829" y="122" text-anchor="middle" font-size="10" fill="#4a5568">IPv4</text>
+
+  <!-- return path -->
+  <path d="M 905 180 L 905 210 L 530 210 L 530 182" fill="none" stroke="#718096" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+  <text x="700" y="228" text-anchor="middle" font-size="10" fill="#718096">replies come back to our own IPv6 address (the reason tayga/CLAT cannot work here)</text>
+
+  <!-- why it works -->
+  <rect x="20" y="255" width="450" height="150" rx="8" fill="#f7fafc" stroke="#cbd5e0"/>
+  <text x="36" y="278" font-weight="600" fill="#2d3748">Why a TCP relay works</text>
+  <text x="36" y="300" font-size="11.5" fill="#4a5568">• the connection is opened by our process, from our IPv6 address</text>
+  <text x="36" y="320" font-size="11.5" fill="#4a5568">• replies are delivered to that socket — no kernel RST</text>
+  <text x="36" y="340" font-size="11.5" fill="#4a5568">• REDIRECT keeps the original destination readable</text>
+  <text x="36" y="360" font-size="11.5" fill="#4a5568">• local traffic needs: ip -4 route replace &lt;net&gt; dev lo</text>
+  <text x="36" y="382" font-size="11.5" fill="#4a5568">• limitations: TCP only (+ DNS), no ICMP, endpoint stays IPv6</text>
+
+  <rect x="500" y="255" width="460" height="150" rx="8" fill="#fff5f5" stroke="#feb2b2"/>
+  <text x="516" y="278" font-weight="600" fill="#742a2a">Why tayga / CLAT fails here</text>
+  <text x="516" y="300" font-size="11.5" fill="#742a2a">• CLAT sends from our own IPv6 → kernel has no IPv4 socket → RST</text>
+  <text x="516" y="320" font-size="11.5" fill="#742a2a">• dropping replies in raw/PREROUTING also hides them from tayga</text>
+  <text x="516" y="340" font-size="11.5" fill="#742a2a">• pool mode: provider does not route prefix addresses to us</text>
+  <text x="516" y="360" font-size="11.5" fill="#742a2a">• clatd is absent in Ubuntu 22.04 repositories</text>
+  <text x="516" y="382" font-size="11.5" fill="#742a2a">→ do not repeat this path; use the TCP relay</text>
+
+  <text x="490" y="422" text-anchor="middle" font-size="10.5" fill="#a0aec0">
+    Verified on Ubuntu 22.04 (LXC, IPv6-only) with mtg 2.3.0 and amneziawg-go 3.1
+  </text>
+</svg>
