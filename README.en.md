@@ -1,9 +1,11 @@
 # nat64-bridge
 
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 **IPv4 services on an IPv6-only server through the provider's NAT64.**
 Technique: `REDIRECT → SO_ORIGINAL_DST → connect over IPv6 to <prefix>::<IPv4>`.
 
-[Русский](README.md) · [Recipe](docs/en/recipe.md) · [AmneziaWG 3.1](docs/en/amneziawg.md) · [Agent prompt](prompts/PROMPT.en.md)
+[Русский](README.md) · [Recipe](docs/en/recipe.md) · [AmneziaWG 3.1](docs/en/amneziawg.md) · [Agent prompt](prompts/PROMPT.en.md) · [CI](ci/README.md)
 
 ![How it works](assets/diagram.svg)
 

@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scripts:
+    name: shell syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: bash -n on every script
+        run: |
+          fail=0
+          for f in scripts/*.sh; do
+            if bash -n "$f"; then echo "OK   $f"; else echo "FAIL $f"; fail=1; fi
+          done
+          exit "$fail"
+
+      - name: shellcheck (errors only)
+        run: |
+          shellcheck --version
+          shellcheck -S error scripts/*.sh
+
+  build:
+    name: go build (${{ matrix.bridge }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        bridge: [dc6, vpn4]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: go vet
+        run: go vet ./src/${{ matrix.bridge }}/main.go
+
+      - name: static build
+        run: |
+          CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o "/tmp/${{ matrix.bridge }}" "src/${{ matrix.bridge }}/main.go"
+          file "/tmp/${{ matrix.bridge }}"
+          ls -la "/tmp/${{ matrix.bridge }}"
+
+  docs:
+    name: docs links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: every relative link resolves
+        run: python3 scripts/check-links.py
+
+  svg:
+    name: svg well-formed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: parse with python
+        run: |
+          python3 - <<'PY'
+          import glob, xml.etree.ElementTree as ET
+          files = glob.glob('assets/*.svg')
+          assert files, 'no svg assets found'
+          for f in files:
+              ET.parse(f)
+              print('OK', f)
+          PY
